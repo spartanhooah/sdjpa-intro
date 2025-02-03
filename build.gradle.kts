@@ -26,7 +26,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 
-	implementation("mysql:mysql-connector-java:8.0.33")
+	implementation("com.mysql:mysql-connector-j")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.spockframework:spock-core:2.4-M5-groovy-4.0")
