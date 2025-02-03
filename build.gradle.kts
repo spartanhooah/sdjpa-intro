@@ -27,6 +27,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 
 	implementation("com.mysql:mysql-connector-j")
+	implementation("org.flywaydb:flyway-mysql")
+	implementation("org.flywaydb:flyway-core")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.spockframework:spock-core:2.4-M5-groovy-4.0")
@@ -56,4 +58,14 @@ tasks.withType<DependencyUpdatesTask> {
 tasks.wrapper {
 	gradleVersion = "8.12.1"
 	distributionType = Wrapper.DistributionType.ALL
+}
+
+spotless {
+	java {
+		palantirJavaFormat()
+	}
+}
+
+tasks.named("compileJava") {
+	dependsOn("spotlessApply")
 }

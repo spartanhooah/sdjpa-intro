@@ -4,10 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.util.Objects;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Objects;
 
 @Data
 @Entity
@@ -19,12 +18,12 @@ public class Book {
 
     private String title;
     private String isbn;
-    private String author;
+    private String publisher;
 
-    public Book(String title, String isbn, String author) {
+    public Book(String title, String isbn, String publisher) {
         this.title = title;
         this.isbn = isbn;
-        this.author = author;
+        this.publisher = publisher;
     }
 
     @Override
