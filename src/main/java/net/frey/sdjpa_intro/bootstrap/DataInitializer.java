@@ -2,7 +2,9 @@ package net.frey.sdjpa_intro.bootstrap;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.frey.sdjpa_intro.entity.AuthorUuid;
 import net.frey.sdjpa_intro.entity.Book;
+import net.frey.sdjpa_intro.repository.AuthorUuidRepository;
 import net.frey.sdjpa_intro.repository.BookRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
     private final BookRepository bookRepository;
+    private final AuthorUuidRepository authorUUIDRepository;
 
     @Override
     public void run(String... args) {
@@ -26,5 +29,11 @@ public class DataInitializer implements CommandLineRunner {
         bookRepository.save(book2);
 
         bookRepository.findAll().forEach(book -> log.info("Book {} has ID: {}", book.getTitle(), book.getId()));
+
+        AuthorUuid authorUuid = new AuthorUuid();
+        authorUuid.setFirstName("Brandon");
+        authorUuid.setLastName("Sanderson");
+
+        authorUUIDRepository.save(authorUuid);
     }
 }
