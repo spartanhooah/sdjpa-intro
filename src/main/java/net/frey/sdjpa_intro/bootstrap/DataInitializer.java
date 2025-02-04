@@ -25,8 +25,6 @@ public class DataInitializer implements CommandLineRunner {
         var book2 = new Book("Title Two", "098-32418", "MIT Press");
         bookRepository.save(book2);
 
-        bookRepository
-                .findAll()
-                .forEach(book -> log.info("Book {} has ID: {}", book.getTitle(), book.getId()));
+        bookRepository.findAll().forEach(book -> log.info("Book {} has ID: {}", book.getTitle(), book.getId()));
     }
 }
