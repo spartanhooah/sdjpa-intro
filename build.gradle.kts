@@ -28,14 +28,11 @@ dependencies {
 
 	implementation("com.mysql:mysql-connector-j")
 	implementation("org.flywaydb:flyway-mysql")
-	implementation("org.flywaydb:flyway-core")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.spockframework:spock-core:2.4-M5-groovy-4.0")
 	testImplementation("org.spockframework:spock-spring:2.4-M5-groovy-4.0")
 	testImplementation("com.h2database:h2")
-
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<Test> {
