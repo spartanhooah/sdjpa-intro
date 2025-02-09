@@ -4,7 +4,7 @@ plugins {
 	groovy
 	id("org.springframework.boot") version "3.4.2"
 	id("io.spring.dependency-management") version "1.1.7"
-	id("io.freefair.lombok") version "8.12"
+	id("io.freefair.lombok") version "8.12.1"
 	id("com.diffplug.spotless") version "7.0.2"
 	id("com.github.ben-manes.versions") version "0.52.0"
 }

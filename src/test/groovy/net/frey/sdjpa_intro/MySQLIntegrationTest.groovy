@@ -3,6 +3,9 @@ package net.frey.sdjpa_intro
 import net.frey.sdjpa_intro.entity.AuthorUuid
 import net.frey.sdjpa_intro.entity.BookNatural
 import net.frey.sdjpa_intro.entity.BookUuid
+import net.frey.sdjpa_intro.entity.composite.AuthorComposite
+import net.frey.sdjpa_intro.entity.composite.NameId
+import net.frey.sdjpa_intro.repository.AuthorCompositeRepository
 import net.frey.sdjpa_intro.repository.AuthorUuidRepository
 import net.frey.sdjpa_intro.repository.BookNaturalRepository
 import net.frey.sdjpa_intro.repository.BookRepository
@@ -29,6 +32,9 @@ class MySQLIntegrationTest extends Specification {
 
     @Autowired
     BookNaturalRepository bookNaturalRepository
+
+    @Autowired
+    AuthorCompositeRepository authorCompositeRepository
 
     def "test a transaction"() {
         when:
@@ -84,5 +90,23 @@ class MySQLIntegrationTest extends Specification {
 
         then:
         foundBook
+    }
+
+    def "test composite author key"() {
+        given:
+        def nameId = new NameId("Sally", "Smith")
+        def author = new AuthorComposite(firstName: nameId.firstName, lastName: nameId.lastName)
+
+        when:
+        def saved = authorCompositeRepository.save(author)
+
+        then:
+        saved
+
+        and:
+        when:
+        def found = authorCompositeRepository.findById(nameId)
+
+        then: found
     }
 }
