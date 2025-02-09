@@ -1,8 +1,10 @@
 package net.frey.sdjpa_intro
 
 import net.frey.sdjpa_intro.entity.AuthorUuid
+import net.frey.sdjpa_intro.entity.BookNatural
 import net.frey.sdjpa_intro.entity.BookUuid
 import net.frey.sdjpa_intro.repository.AuthorUuidRepository
+import net.frey.sdjpa_intro.repository.BookNaturalRepository
 import net.frey.sdjpa_intro.repository.BookRepository
 import net.frey.sdjpa_intro.repository.BookUuidRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,6 +26,9 @@ class MySQLIntegrationTest extends Specification {
 
     @Autowired
     BookUuidRepository bookUuidRepository
+
+    @Autowired
+    BookNaturalRepository bookNaturalRepository
 
     def "test a transaction"() {
         when:
@@ -67,5 +72,17 @@ class MySQLIntegrationTest extends Specification {
 
         then:
         foundBook.title == "The Fifth Season"
+    }
+
+    def "test BookNatural"() {
+        given:
+        def book = new BookNatural(title: "My Book")
+
+        when:
+        def savedBook = bookNaturalRepository.save(book)
+        def foundBook = bookNaturalRepository.getReferenceById(savedBook.title)
+
+        then:
+        foundBook
     }
 }
