@@ -22,4 +22,12 @@ class AuthorDaoIntegrationTest extends Specification {
         then:
         author
     }
+
+    def "get author by first and last name"() {
+        when:
+        def author = authorDao.getByFirstAndLastName("Craig", "Walls")
+
+        then:
+        author.firstName == "Craig"
+    }
 }
