@@ -40,6 +40,41 @@ class AuthorDaoIntegrationTest extends Specification {
         def savedAuthor = authorDao.saveAuthor(author)
 
         then:
-        author.firstName == "John"
+        savedAuthor.firstName == "John"
+    }
+
+    def "update an author"() {
+        given:
+        def author = new Author(firstName: "John", lastName: "Thompson")
+
+        when:
+        def saved = authorDao.saveAuthor(author)
+
+        then:
+        saved
+
+        when:
+        saved.lastName = "T"
+        def updated = authorDao.updateAuthor(saved)
+
+        then:
+        updated.lastName == "T"
+    }
+
+    def "delete an author by ID"() {
+        given:
+        def author = new Author(firstName: "John", lastName: "Thompson")
+
+        when:
+        def saved = authorDao.saveAuthor(author)
+
+        then:
+        saved
+
+        when:
+        authorDao.deleteAuthor(saved)
+
+        then:
+        !authorDao.getById(saved.id)
     }
 }

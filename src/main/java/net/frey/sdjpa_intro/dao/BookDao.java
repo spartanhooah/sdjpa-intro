@@ -1,30 +1,31 @@
 package net.frey.sdjpa_intro.dao;
 
+import lombok.RequiredArgsConstructor;
+import net.frey.sdjpa_intro.entity.Book;
+import org.springframework.stereotype.Component;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import javax.sql.DataSource;
-import lombok.RequiredArgsConstructor;
-import net.frey.sdjpa_intro.entity.Author;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class AuthorDao {
+public class BookDao {
     private final DataSource dataSource;
 
-    public Author getById(Long id) {
+    public Book getById(Long id) {
         ResultSet resultSet = null;
 
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM author where id = ?")) {
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM book where id = ?")) {
             statement.setLong(1, id);
             resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                return constructAuthor(resultSet);
+                return constructBook(resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -41,18 +42,16 @@ public class AuthorDao {
         return null;
     }
 
-    Author getByFirstAndLastName(String firstName, String lastName) {
+    public Book getBookByTitle(String title) {
         ResultSet resultSet = null;
 
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement("SELECT * FROM author where first_name = ? and last_name = ?")) {
-            statement.setString(1, firstName);
-            statement.setString(2, lastName);
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM book where title = ?")) {
+            statement.setString(1, title);
             resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                return constructAuthor(resultSet);
+                return constructBook(resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -69,14 +68,15 @@ public class AuthorDao {
         return null;
     }
 
-    public Author saveAuthor(Author author) {
+    public Book saveBook(Book book) {
         ResultSet resultSet = null;
 
         try (Connection connection = dataSource.getConnection();
                 PreparedStatement statement =
-                        connection.prepareStatement("INSERT INTO author (first_name, last_name) VALUES (?, ?)")) {
-            statement.setString(1, author.getFirstName());
-            statement.setString(2, author.getLastName());
+                        connection.prepareStatement("INSERT INTO book (title, publisher, isbn) VALUES (?, ?, ?)")) {
+            statement.setString(1, book.getTitle());
+            statement.setString(2, book.getPublisher());
+            statement.setString(3, book.getIsbn());
 
             statement.execute();
 
@@ -106,26 +106,27 @@ public class AuthorDao {
         return null;
     }
 
-    public Author updateAuthor(Author author) {
+    public Book updateBook(Book book) {
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement("UPDATE author set first_name = ?, last_name = ? where id = ?")) {
-            statement.setString(1, author.getFirstName());
-            statement.setString(2, author.getLastName());
-            statement.setLong(3, author.getId());
+                PreparedStatement statement = connection.prepareStatement(
+                        "UPDATE book set title = ?, publisher = ?, isbn = ? where id = ?")) {
+            statement.setString(1, book.getTitle());
+            statement.setString(2, book.getPublisher());
+            statement.setString(3, book.getIsbn());
+            statement.setLong(4, book.getId());
 
             statement.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        return getById(author.getId());
+        return getById(book.getId());
     }
 
-    public void deleteAuthor(Author author) {
+    public void deleteBook(Book book) {
         try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement("DELETE from author where id = ?")) {
-            statement.setLong(1, author.getId());
+                PreparedStatement statement = connection.prepareStatement("DELETE from book where id = ?")) {
+            statement.setLong(1, book.getId());
 
             statement.execute();
         } catch (SQLException e) {
@@ -133,12 +134,13 @@ public class AuthorDao {
         }
     }
 
-    private static Author constructAuthor(ResultSet resultSet) throws SQLException {
-        var author = new Author();
-        author.setId(resultSet.getLong("id"));
-        author.setFirstName(resultSet.getString("first_name"));
-        author.setLastName(resultSet.getString("last_name"));
+    private Book constructBook(ResultSet resultSet) throws SQLException {
+        var book = new Book();
+        book.setId(resultSet.getLong("id"));
+        book.setTitle(resultSet.getString("title"));
+        book.setPublisher(resultSet.getString("publisher"));
+        book.setIsbn(resultSet.getString("isbn"));
 
-        return author;
+        return book;
     }
 }
