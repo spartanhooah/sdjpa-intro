@@ -1,5 +1,6 @@
 package net.frey.sdjpa_intro.dao
 
+import net.frey.sdjpa_intro.entity.Author
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -29,5 +30,16 @@ class AuthorDaoIntegrationTest extends Specification {
 
         then:
         author.firstName == "Craig"
+    }
+
+    def "save an author"() {
+        given:
+        def author = new Author(firstName: "John", lastName: "Thompson")
+
+        when:
+        def savedAuthor = authorDao.saveAuthor(author)
+
+        then:
+        author.firstName == "John"
     }
 }

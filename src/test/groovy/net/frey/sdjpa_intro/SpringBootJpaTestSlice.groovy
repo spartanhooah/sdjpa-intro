@@ -5,14 +5,12 @@ import net.frey.sdjpa_intro.repository.BookRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.context.annotation.ComponentScan
 import org.springframework.test.annotation.Commit
 import spock.lang.Specification
 import spock.lang.Stepwise
 
 @Stepwise
 @DataJpaTest
-@ComponentScan(basePackages = ['net.frey.sdjpa_intro.bootstrap'])
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class SpringBootJpaTestSlice extends Specification {
     @Autowired
@@ -22,7 +20,7 @@ class SpringBootJpaTestSlice extends Specification {
     def "test JPA test slice"() {
         given:
         def countBefore = bookRepository.count()
-        assert countBefore == 2
+        assert countBefore == 5
 
         when:
         bookRepository.save(new Book())
@@ -36,6 +34,6 @@ class SpringBootJpaTestSlice extends Specification {
         def count = bookRepository.count()
 
         then:
-        count == 3
+        count == 6
     }
 }

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.entity.Author;
@@ -15,21 +16,15 @@ public class AuthorDao {
     private final DataSource dataSource;
 
     public Author getById(Long id) {
-        PreparedStatement statement;
         ResultSet resultSet = null;
 
-        try (Connection connection = dataSource.getConnection()) {
-            statement = connection.prepareStatement("SELECT * FROM author where id = ?");
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM author where id = ?")) {
             statement.setLong(1, id);
             resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                var author = new Author();
-                author.setId(id);
-                author.setFirstName(resultSet.getString("first_name"));
-                author.setLastName(resultSet.getString("last_name"));
-
-                return author;
+                return constructAuthor(resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -47,22 +42,17 @@ public class AuthorDao {
     }
 
     Author getByFirstAndLastName(String firstName, String lastName) {
-        PreparedStatement statement;
         ResultSet resultSet = null;
 
-        try (Connection connection = dataSource.getConnection()) {
-            statement = connection.prepareStatement("SELECT * FROM author where first_name = ? and last_name = ?");
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement statement =
+                        connection.prepareStatement("SELECT * FROM author where first_name = ? and last_name = ?")) {
             statement.setString(1, firstName);
             statement.setString(2, lastName);
             resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                var author = new Author();
-                author.setId(resultSet.getLong("id"));
-                author.setFirstName(resultSet.getString("first_name"));
-                author.setLastName(resultSet.getString("last_name"));
-
-                return author;
+                return constructAuthor(resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -77,5 +67,51 @@ public class AuthorDao {
         }
 
         return null;
+    }
+
+    public Author saveAuthor(Author author) {
+        ResultSet resultSet = null;
+
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement statement =
+                        connection.prepareStatement("INSERT INTO author (first_name, last_name) VALUES (?, ?)")) {
+            statement.setString(1, author.getFirstName());
+            statement.setString(2, author.getLastName());
+
+            statement.execute();
+
+            Statement lastIndex = connection.createStatement();
+
+            // LAST_INSERT_ID is specific to MySQL
+            resultSet = lastIndex.executeQuery("SELECT LAST_INSERT_ID()");
+
+            if (resultSet.next()) {
+                Long savedId = resultSet.getLong(1);
+                return getById(savedId);
+            }
+
+            lastIndex.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (resultSet != null) {
+                try {
+                    resultSet.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static Author constructAuthor(ResultSet resultSet) throws SQLException {
+        var author = new Author();
+        author.setId(resultSet.getLong("id"));
+        author.setFirstName(resultSet.getString("first_name"));
+        author.setLastName(resultSet.getString("last_name"));
+
+        return author;
     }
 }
