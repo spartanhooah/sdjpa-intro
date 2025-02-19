@@ -5,18 +5,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 
 @ActiveProfiles("local")
 @DataJpaTest
-@ComponentScan(basePackages = ["net.frey.sdjpa_intro.dao"])
+@ComponentScan(basePackages = ["net.frey.sdjpa_intro.dao", "net.frey.sdjpa_intro.mapper"])
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class AuthorJdbcTemplateTest extends Specification {
     @Autowired
     AuthorJdbcTemplate authorDao
 
-    def "get author"() {
+    def "get author by ID"() {
         when:
         def author = authorDao.getById(1L)
 
@@ -74,7 +75,10 @@ class AuthorJdbcTemplateTest extends Specification {
         when:
         authorDao.deleteAuthor(saved)
 
+        and:
+        authorDao.getById(saved.id)
+
         then:
-        !authorDao.getById(saved.id)
+        thrown(EmptyResultDataAccessException)
     }
 }
