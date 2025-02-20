@@ -11,7 +11,7 @@ import spock.lang.Specification
 
 @ActiveProfiles("local")
 @DataJpaTest
-@ComponentScan(basePackages = ["net.frey.sdjpa_intro.dao", "net.frey.sdjpa_intro.mapper"])
+@ComponentScan(basePackages = ["net.frey.sdjpa_intro.dao"])
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class BookJdbcTemplateTest extends Specification {
     @Autowired

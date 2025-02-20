@@ -1,4 +1,4 @@
-package net.frey.sdjpa_intro.mapper;
+package net.frey.sdjpa_intro.dao.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

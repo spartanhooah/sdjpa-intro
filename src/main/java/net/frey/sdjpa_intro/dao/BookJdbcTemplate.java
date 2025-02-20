@@ -1,8 +1,8 @@
 package net.frey.sdjpa_intro.dao;
 
 import lombok.RequiredArgsConstructor;
+import net.frey.sdjpa_intro.dao.mapper.BookMapper;
 import net.frey.sdjpa_intro.entity.Book;
-import net.frey.sdjpa_intro.mapper.BookMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 

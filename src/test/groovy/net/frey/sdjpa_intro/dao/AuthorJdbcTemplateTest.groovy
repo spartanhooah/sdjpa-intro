@@ -5,13 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.ComponentScan
-import org.springframework.dao.EmptyResultDataAccessException
+import org.springframework.dao.TransientDataAccessResourceException
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 
 @ActiveProfiles("local")
 @DataJpaTest
-@ComponentScan(basePackages = ["net.frey.sdjpa_intro.dao", "net.frey.sdjpa_intro.mapper"])
+@ComponentScan(basePackages = ["net.frey.sdjpa_intro.dao"])
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class AuthorJdbcTemplateTest extends Specification {
     @Autowired
@@ -23,6 +23,7 @@ class AuthorJdbcTemplateTest extends Specification {
 
         then:
         author
+        author.books.size() == 3
     }
 
     def "get author by first and last name"() {
@@ -79,6 +80,6 @@ class AuthorJdbcTemplateTest extends Specification {
         authorDao.getById(saved.id)
 
         then:
-        thrown(EmptyResultDataAccessException)
+        thrown(TransientDataAccessResourceException)
     }
 }
