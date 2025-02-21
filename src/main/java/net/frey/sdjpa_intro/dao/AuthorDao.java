@@ -1,11 +1,6 @@
 package net.frey.sdjpa_intro.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.entity.Author;
 import org.springframework.stereotype.Component;
@@ -13,132 +8,25 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class AuthorDao {
-    private final DataSource dataSource;
-
     public Author getById(Long id) {
-        ResultSet resultSet = null;
-
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM author where id = ?")) {
-            statement.setLong(1, id);
-            resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                return constructAuthor(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
         return null;
     }
 
     Author getByFirstAndLastName(String firstName, String lastName) {
-        ResultSet resultSet = null;
-
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement("SELECT * FROM author where first_name = ? and last_name = ?")) {
-            statement.setString(1, firstName);
-            statement.setString(2, lastName);
-            resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                return constructAuthor(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
         return null;
     }
 
     public Author saveAuthor(Author author) {
-        ResultSet resultSet = null;
-
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement("INSERT INTO author (first_name, last_name) VALUES (?, ?)")) {
-            statement.setString(1, author.getFirstName());
-            statement.setString(2, author.getLastName());
-
-            statement.execute();
-
-            Statement lastIndex = connection.createStatement();
-
-            // LAST_INSERT_ID is specific to MySQL
-            resultSet = lastIndex.executeQuery("SELECT LAST_INSERT_ID()");
-
-            if (resultSet.next()) {
-                Long savedId = resultSet.getLong(1);
-                return getById(savedId);
-            }
-
-            lastIndex.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
         return null;
     }
 
     public Author updateAuthor(Author author) {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement("UPDATE author set first_name = ?, last_name = ? where id = ?")) {
-            statement.setString(1, author.getFirstName());
-            statement.setString(2, author.getLastName());
-            statement.setLong(3, author.getId());
-
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return getById(author.getId());
+        return null;
     }
 
-    public void deleteAuthor(Author author) {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement("DELETE from author where id = ?")) {
-            statement.setLong(1, author.getId());
+    public void deleteAuthor(Author author) {}
 
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static Author constructAuthor(ResultSet resultSet) throws SQLException {
-        var author = new Author();
-        author.setId(resultSet.getLong("id"));
-        author.setFirstName(resultSet.getString("first_name"));
-        author.setLastName(resultSet.getString("last_name"));
-
-        return author;
+    private static Author constructAuthor(ResultSet resultSet) {
+        return null;
     }
 }
