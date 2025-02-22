@@ -41,6 +41,7 @@ class AuthorDaoIntegrationTest extends Specification {
 
         then:
         savedAuthor.firstName == "John"
+        savedAuthor.id
     }
 
     def "update an author"() {
@@ -72,7 +73,7 @@ class AuthorDaoIntegrationTest extends Specification {
         saved
 
         when:
-        authorDao.deleteAuthor(saved)
+        authorDao.deleteAuthorById(saved.id)
 
         then:
         !authorDao.getById(saved.id)

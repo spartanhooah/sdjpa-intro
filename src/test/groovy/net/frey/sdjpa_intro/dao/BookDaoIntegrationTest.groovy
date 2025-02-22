@@ -72,7 +72,7 @@ class BookDaoIntegrationTest extends Specification {
         saved
 
         when:
-        bookDao.deleteBook(saved)
+        bookDao.deleteBookById(saved.id)
 
         then:
         !bookDao.getById(saved.id)

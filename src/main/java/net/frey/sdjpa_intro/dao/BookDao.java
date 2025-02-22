@@ -1,11 +1,7 @@
 package net.frey.sdjpa_intro.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import javax.sql.DataSource;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.entity.Book;
 import org.springframework.stereotype.Component;
@@ -13,133 +9,62 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class BookDao {
-    private final DataSource dataSource;
+    private final EntityManagerFactory emf;
 
     public Book getById(Long id) {
-        ResultSet resultSet = null;
+        var em = getEntityManager();
 
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM book where id = ?")) {
-            statement.setLong(1, id);
-            resultSet = statement.executeQuery();
+        var book = em.find(Book.class, id);
+        em.close();
 
-            if (resultSet.next()) {
-                return constructBook(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        return null;
+        return book;
     }
 
     public Book getBookByTitle(String title) {
-        ResultSet resultSet = null;
+        var em = getEntityManager();
+        var query = em.createQuery("SELECT b FROM Book b WHERE b.title = :title", Book.class);
+        query.setParameter("title", title);
 
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM book where title = ?")) {
-            statement.setString(1, title);
-            resultSet = statement.executeQuery();
+        var book = query.getSingleResult();
+        em.close();
 
-            if (resultSet.next()) {
-                return constructBook(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        return null;
+        return book;
     }
 
     public Book saveBook(Book book) {
-        ResultSet resultSet = null;
+        var em = getEntityManager();
 
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement =
-                        connection.prepareStatement("INSERT INTO book (title, publisher, isbn) VALUES (?, ?, ?)")) {
-            statement.setString(1, book.getTitle());
-            statement.setString(2, book.getPublisher());
-            statement.setString(3, book.getIsbn());
+        em.getTransaction().begin();
+        em.persist(book);
+        em.getTransaction().commit();
+        em.close();
 
-            statement.execute();
-
-            Statement lastIndex = connection.createStatement();
-
-            // LAST_INSERT_ID is specific to MySQL
-            resultSet = lastIndex.executeQuery("SELECT LAST_INSERT_ID()");
-
-            if (resultSet.next()) {
-                Long savedId = resultSet.getLong(1);
-                return getById(savedId);
-            }
-
-            lastIndex.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        return null;
+        return book;
     }
 
     public Book updateBook(Book book) {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(
-                        "UPDATE book set title = ?, publisher = ?, isbn = ? where id = ?")) {
-            statement.setString(1, book.getTitle());
-            statement.setString(2, book.getPublisher());
-            statement.setString(3, book.getIsbn());
-            statement.setLong(4, book.getId());
+        var em = getEntityManager();
 
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return getById(book.getId());
-    }
-
-    public void deleteBook(Book book) {
-        try (Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement("DELETE from book where id = ?")) {
-            statement.setLong(1, book.getId());
-
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Book constructBook(ResultSet resultSet) throws SQLException {
-        var book = new Book();
-        book.setId(resultSet.getLong("id"));
-        book.setTitle(resultSet.getString("title"));
-        book.setPublisher(resultSet.getString("publisher"));
-        book.setIsbn(resultSet.getString("isbn"));
+        em.joinTransaction();
+        em.merge(book);
+        em.flush();
+        em.getTransaction().commit();
+        em.close();
 
         return book;
+    }
+
+    public void deleteBookById(Long id) {
+        var em = getEntityManager();
+
+        em.getTransaction().begin();
+        var book = em.find(Book.class, id);
+        em.remove(book);
+        em.getTransaction().commit();
+        em.close();
+    }
+
+    private EntityManager getEntityManager() {
+        return emf.createEntityManager();
     }
 }
