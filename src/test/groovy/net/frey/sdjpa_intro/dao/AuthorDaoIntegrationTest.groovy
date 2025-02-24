@@ -78,4 +78,18 @@ class AuthorDaoIntegrationTest extends Specification {
         then:
         !authorDao.getById(saved.id)
     }
+
+    def "get list of authors"() {
+        when:
+        def authors = authorDao.authorByLastNameLike("Wall")
+
+        then:
+        authors
+        authors.size() > 0
+    }
+
+    def "find all authors"() {
+        expect:
+        authorDao.getAll().size() > 0
+    }
 }

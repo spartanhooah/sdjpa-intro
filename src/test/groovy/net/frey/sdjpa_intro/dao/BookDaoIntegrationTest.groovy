@@ -77,4 +77,16 @@ class BookDaoIntegrationTest extends Specification {
         then:
         !bookDao.getById(saved.id)
     }
+
+    def "find by ISBN"() {
+        given:
+        def book = new Book(isbn: "1234", title: "ISBN TEST")
+        bookDao.saveBook(book)
+
+        when:
+        def fetched = bookDao.getByIsbn(book.isbn)
+
+        then:
+        fetched.title == "ISBN TEST"
+    }
 }

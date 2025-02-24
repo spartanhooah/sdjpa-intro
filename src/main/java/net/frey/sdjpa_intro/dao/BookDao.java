@@ -20,6 +20,19 @@ public class BookDao {
         return book;
     }
 
+    public Book getByIsbn(String isbn) {
+        var em = getEntityManager();
+
+        try {
+            var query = em.createQuery("SELECT b FROM Book b WHERE b.isbn = :isbn", Book.class);
+            query.setParameter("isbn", isbn);
+
+            return query.getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
     public Book getBookByTitle(String title) {
         var em = getEntityManager();
         var query = em.createQuery("SELECT b FROM Book b WHERE b.title = :title", Book.class);

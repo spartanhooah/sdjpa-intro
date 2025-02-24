@@ -2,6 +2,7 @@ package net.frey.sdjpa_intro.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.entity.Author;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AuthorDao {
     private final EntityManagerFactory emf;
+
+    public List<Author> getAll() {
+        try (var em = getEntityManager()) {
+            var query = em.createNamedQuery("author_find_all", Author.class);
+
+            return query.getResultList();
+        }
+    }
 
     public Author getById(Long id) {
         var em = getEntityManager();
@@ -32,6 +41,15 @@ public class AuthorDao {
         em.close();
 
         return author;
+    }
+
+    List<Author> authorByLastNameLike(String lastName) {
+        try (var em = getEntityManager()) {
+            var query = em.createQuery("SELECT a FROM Author a where a.lastName LIKE :last_name", Author.class);
+            query.setParameter("last_name", "%" + lastName + "%");
+
+            return query.getResultList();
+        }
     }
 
     public Author saveAuthor(Author author) {
