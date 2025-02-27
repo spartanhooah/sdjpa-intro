@@ -6,75 +6,101 @@ import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.entity.Book;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class BookDao {
     private final EntityManagerFactory emf;
 
+    public List<Book> getAll() {
+        try (var em = getEntityManager()) {
+            var query = em.createNamedQuery("book_find_all", Book.class);
+
+            return query.getResultList();
+        }
+    }
+
     public Book getById(Long id) {
-        var em = getEntityManager();
-
-        var book = em.find(Book.class, id);
-        em.close();
-
-        return book;
+        try (var em = getEntityManager()) {
+            return em.find(Book.class, id);
+        }
     }
 
     public Book getByIsbn(String isbn) {
-        var em = getEntityManager();
-
-        try {
+        try (var em = getEntityManager()) {
             var query = em.createQuery("SELECT b FROM Book b WHERE b.isbn = :isbn", Book.class);
             query.setParameter("isbn", isbn);
 
             return query.getSingleResult();
-        } finally {
-            em.close();
         }
     }
 
     public Book getBookByTitle(String title) {
-        var em = getEntityManager();
-        var query = em.createQuery("SELECT b FROM Book b WHERE b.title = :title", Book.class);
-        query.setParameter("title", title);
+        try (var em = getEntityManager()) {
+            var query = em.createNamedQuery("find_by_title", Book.class);
+            query.setParameter("title", title);
 
-        var book = query.getSingleResult();
-        em.close();
+            return query.getSingleResult();
+        }
+    }
 
-        return book;
+    public Book getByTitleCriteria(String title) {
+        try (var em = getEntityManager()) {
+            var builder = em.getCriteriaBuilder();
+            var query = builder.createQuery(Book.class);
+            var root = query.from(Book.class);
+
+            var titleParam = builder.parameter(String.class);
+
+            var titlePredicate = builder.equal(root.get("title"), titleParam);
+
+            query.select(root).where(titlePredicate);
+
+            var typedQuery = em.createQuery(query);
+            typedQuery.setParameter(titleParam, title);
+
+            return typedQuery.getSingleResult();
+        }
+    }
+
+    public Book getByTitleNative(String title) {
+        try (var em = getEntityManager()) {
+            var query = em.createNativeQuery("SELECT * FROM book b WHERE b.title = :title", Book.class);
+            query.setParameter("title", title);
+
+            return (Book) query.getSingleResult();
+        }
     }
 
     public Book saveBook(Book book) {
-        var em = getEntityManager();
+        try (var em = getEntityManager()) {
+            em.getTransaction().begin();
+            em.persist(book);
+            em.getTransaction().commit();
 
-        em.getTransaction().begin();
-        em.persist(book);
-        em.getTransaction().commit();
-        em.close();
-
-        return book;
+            return book;
+        }
     }
 
     public Book updateBook(Book book) {
-        var em = getEntityManager();
+        try (var em = getEntityManager()) {
+            em.joinTransaction();
+            em.merge(book);
+            em.flush();
+            em.getTransaction().commit();
 
-        em.joinTransaction();
-        em.merge(book);
-        em.flush();
-        em.getTransaction().commit();
-        em.close();
-
-        return book;
+            return book;
+        }
     }
 
     public void deleteBookById(Long id) {
-        var em = getEntityManager();
-
-        em.getTransaction().begin();
-        var book = em.find(Book.class, id);
-        em.remove(book);
-        em.getTransaction().commit();
-        em.close();
+        try (var em = getEntityManager()) {
+            em.getTransaction().begin();
+            var book = em.find(Book.class, id);
+            em.remove(book);
+            em.getTransaction().commit();
+        }
     }
 
     private EntityManager getEntityManager() {

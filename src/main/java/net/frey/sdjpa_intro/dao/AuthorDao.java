@@ -2,10 +2,11 @@ package net.frey.sdjpa_intro.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.entity.Author;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -29,11 +30,10 @@ public class AuthorDao {
         return author;
     }
 
-    Author getByFirstAndLastName(String firstName, String lastName) {
+    public Author getByFirstAndLastName(String firstName, String lastName) {
         var em = getEntityManager();
-        var query = em.createQuery(
-                "SELECT a FROM Author a WHERE a.firstName = :first_name " + "AND a.lastName = :last_name",
-                Author.class);
+
+        var query = em.createNamedQuery("find_by_name", Author.class);
         query.setParameter("first_name", firstName);
         query.setParameter("last_name", lastName);
 
@@ -43,7 +43,40 @@ public class AuthorDao {
         return author;
     }
 
-    List<Author> authorByLastNameLike(String lastName) {
+    public Author getAuthorByNameCriteria(String firstName, String lastName) {
+        try (var em = getEntityManager()) {
+            var builder = em.getCriteriaBuilder();
+            var query = builder.createQuery(Author.class);
+            var root = query.from(Author.class);
+
+            var firstParam = builder.parameter(String.class);
+            var lastParam = builder.parameter(String.class);
+
+            var firstPredicate = builder.equal(root.get("firstName"), firstParam);
+            var lastPredicate = builder.equal(root.get("lastName"), lastParam);
+
+            query.select(root).where(builder.and(firstPredicate, lastPredicate));
+
+            var typedQuery = em.createQuery(query);
+            typedQuery.setParameter(firstParam, firstName);
+            typedQuery.setParameter(lastParam, lastName);
+
+            return typedQuery.getSingleResult();
+        }
+    }
+
+    public Author getAuthorByNameNative(String firstName, String lastName) {
+        try (var em = getEntityManager()) {
+            var query = em.createNativeQuery(
+                    "SELECT * FROM author a WHERE a.first_name = ? AND a.last_name = ?", Author.class);
+            query.setParameter(1, firstName);
+            query.setParameter(2, lastName);
+
+            return (Author) query.getSingleResult();
+        }
+    }
+
+    public List<Author> getAuthorByLastNameLike(String lastName) {
         try (var em = getEntityManager()) {
             var query = em.createQuery("SELECT a FROM Author a where a.lastName LIKE :last_name", Author.class);
             query.setParameter("last_name", "%" + lastName + "%");
