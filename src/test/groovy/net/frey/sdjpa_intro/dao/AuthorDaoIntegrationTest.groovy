@@ -1,10 +1,12 @@
 package net.frey.sdjpa_intro.dao
 
+import jakarta.persistence.EntityNotFoundException
 import net.frey.sdjpa_intro.entity.Author
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 
@@ -30,6 +32,14 @@ class AuthorDaoIntegrationTest extends Specification {
 
         then:
         author.firstName == "Craig"
+    }
+
+    def "get author by name but doesn't exist"() {
+        when:
+        authorDao.getByFirstAndLastName("foo", "bar")
+
+        then:
+        thrown(EntityNotFoundException)
     }
 
     def "save an author"() {
@@ -75,7 +85,10 @@ class AuthorDaoIntegrationTest extends Specification {
         when:
         authorDao.deleteAuthorById(saved.id)
 
+        and:
+        authorDao.getById(saved.id)
+
         then:
-        !authorDao.getById(saved.id)
+        thrown(JpaObjectRetrievalFailureException)
     }
 }
