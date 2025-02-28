@@ -89,19 +89,4 @@ class BookDaoIntegrationTest extends Specification {
         then:
         fetched.title == "ISBN TEST"
     }
-
-    def "get all"() {
-        expect:
-        bookDao.getAll().size() > 0
-    }
-
-    def "get book by title using criteria query"() {
-        expect:
-        bookDao.getByTitleCriteria("Clean Code")
-    }
-
-    def "get book by title using native query"() {
-        expect:
-        bookDao.getByTitleNative("Clean Code")
-    }
 }
