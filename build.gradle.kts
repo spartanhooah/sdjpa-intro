@@ -2,7 +2,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
 	groovy
-	id("org.springframework.boot") version "3.4.2"
+	id("org.springframework.boot") version "3.4.3"
 	id("io.spring.dependency-management") version "1.1.7"
 	id("io.freefair.lombok") version "8.12.1"
 	id("com.diffplug.spotless") version "7.0.2"
@@ -14,7 +14,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(23)
 	}
 }
 
@@ -27,7 +27,6 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 
 	implementation("com.mysql:mysql-connector-j")
-	implementation("org.flywaydb:flyway-mysql")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.spockframework:spock-core:2.4-M5-groovy-4.0")
