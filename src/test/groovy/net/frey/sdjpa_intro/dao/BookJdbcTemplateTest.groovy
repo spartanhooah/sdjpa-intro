@@ -6,6 +6,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.dao.EmptyResultDataAccessException
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 
@@ -80,5 +82,51 @@ class BookJdbcTemplateTest extends Specification {
 
         then:
         thrown(EmptyResultDataAccessException)
+    }
+
+    def "find all books"() {
+        expect:
+        bookDao.getAll().size() > 3
+    }
+
+    def "find all books first page"() {
+        expect:
+        bookDao.getAll(2, 0).size() == 2
+    }
+
+    def "find all books second page"() {
+        expect:
+        bookDao.getAll(2, 2).size() == 2
+    }
+
+    def "find all books page 10"() {
+        expect:
+        bookDao.getAll(2, 10).size() == 0
+    }
+
+    def "find all books with pageable first page"() {
+        expect:
+        bookDao.getAll(PageRequest.of(0, 2)).size() == 2
+    }
+
+    def "find all books with pageable second page"() {
+        expect:
+        bookDao.getAll(PageRequest.of(1, 2)).size() == 2
+    }
+
+    def "find all books with pageable page 10"() {
+        expect:
+        bookDao.getAll(PageRequest.of(10, 2)).size() == 0
+    }
+
+    def "find all books sort by title"() {
+        when:
+        def books = bookDao.getAllSortByTitle(
+                PageRequest.of(0,
+                        2,
+                        Sort.by(Sort.Order.desc("title"))))
+
+        then:
+        books[0].title == "Spring in Action, 6th Edition"
     }
 }

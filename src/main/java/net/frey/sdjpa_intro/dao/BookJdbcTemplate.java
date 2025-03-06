@@ -1,8 +1,10 @@
 package net.frey.sdjpa_intro.dao;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.dao.mapper.BookMapper;
 import net.frey.sdjpa_intro.entity.Book;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +13,26 @@ import org.springframework.stereotype.Component;
 public class BookJdbcTemplate {
     private final JdbcTemplate template;
     private final BookMapper mapper;
+
+    public List<Book> getAll() {
+        return template.query("SELECT * FROM book", mapper);
+    }
+
+    public List<Book> getAll(int pageSize, int offset) {
+        return template.query("SELECT * FROM book LIMIT ? OFFSET ?", mapper, pageSize, offset);
+    }
+
+    public List<Book> getAll(Pageable pageable) {
+        return template.query(
+                "SELECT * FROM book LIMIT ? OFFSET ?", mapper, pageable.getPageSize(), pageable.getOffset());
+    }
+
+    public List<Book> getAllSortByTitle(Pageable pageable) {
+        var sql = "SELECT * FROM book ORDER BY title "
+                + pageable.getSort().getOrderFor("title").getDirection().name() + " LIMIT ? OFFSET ?";
+
+        return template.query(sql, mapper, pageable.getPageSize(), pageable.getOffset());
+    }
 
     public Book getById(Long id) {
         return template.queryForObject("SELECT * FROM book where id = ?", mapper, id);

@@ -6,6 +6,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.dao.TransientDataAccessResourceException
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 
@@ -81,5 +83,21 @@ class AuthorJdbcTemplateTest extends Specification {
 
         then:
         thrown(TransientDataAccessResourceException)
+    }
+
+    def "find all authors by last name"() {
+        expect:
+        authorDao.getByLastName("Smith", PageRequest.of(0, 10)).size() == 10
+    }
+
+    def "find all authors by last name, sort by first name"() {
+        given:
+        def sorting = Sort.by(Sort.Order.desc("first_name"))
+
+        when:
+        def authors = authorDao.getByLastName("Smith", PageRequest.of(0, 10, sorting))
+
+        then:
+        authors[0].firstName == "Yugal"
     }
 }

@@ -1,7 +1,7 @@
 package net.frey.sdjpa_intro
 
+import net.frey.sdjpa_intro.dao.BookJdbcTemplate
 import net.frey.sdjpa_intro.entity.Book
-import net.frey.sdjpa_intro.repository.BookRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
@@ -14,24 +14,24 @@ import spock.lang.Stepwise
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class SpringBootJpaTestSlice extends Specification {
     @Autowired
-    BookRepository bookRepository
+    BookJdbcTemplate bookTemplate
 
     @Commit
     def "test JPA test slice"() {
         given:
-        def countBefore = bookRepository.count()
+        def countBefore = bookTemplate.count()
         assert countBefore == 5
 
         when:
-        bookRepository.save(new Book())
+        bookTemplate.save(new Book())
 
         then:
-        bookRepository.count() > countBefore
+        bookTemplate.count() > countBefore
     }
 
     def "test a transaction"() {
         when:
-        def count = bookRepository.count()
+        def count = bookTemplate.count()
 
         then:
         count == 6

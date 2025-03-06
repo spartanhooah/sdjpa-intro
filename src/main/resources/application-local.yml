@@ -3,9 +3,13 @@ spring:
     username: bookuser
     password: password!!123
     url: jdbc:mysql://127.0.0.1:3306/bookdb2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
-  flyway:
-    user: bookadmin
-    password: password!!123
+  jpa:
+    show-sql: true
   sql:
     init:
       mode: always
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

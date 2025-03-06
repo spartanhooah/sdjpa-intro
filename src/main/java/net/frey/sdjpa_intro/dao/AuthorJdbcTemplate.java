@@ -1,8 +1,10 @@
 package net.frey.sdjpa_intro.dao;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.dao.mapper.AuthorMapper;
 import net.frey.sdjpa_intro.entity.Author;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -53,6 +55,22 @@ public class AuthorJdbcTemplate {
                 WHERE author.first_name = ? AND author.last_name = ?""";
 
         return template.queryForObject(sql, mapper, firstName, lastName);
+    }
+
+    public List<Author> getByLastName(String lastName, Pageable pageable) {
+        var sql = new StringBuilder("SELECT * FROM author where last_name = ? ");
+
+        if (pageable.getSort().getOrderFor("first_name") != null) {
+            sql.append("ORDER BY first_name ")
+                    .append(pageable.getSort()
+                            .getOrderFor("first_name")
+                            .getDirection()
+                            .name());
+        }
+
+        sql.append(" LIMIT ? OFFSET ?");
+
+        return template.query(sql.toString(), mapper, lastName, pageable.getPageSize(), pageable.getOffset());
     }
 
     public Author saveAuthor(Author author) {
