@@ -2,11 +2,10 @@ package net.frey.sdjpa_intro.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.entity.Author;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

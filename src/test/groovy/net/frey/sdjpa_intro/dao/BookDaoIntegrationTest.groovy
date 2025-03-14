@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 
@@ -103,5 +105,22 @@ class BookDaoIntegrationTest extends Specification {
     def "get book by title using native query"() {
         expect:
         bookDao.getByTitleNative("Clean Code")
+    }
+
+    def "get all using paging"() {
+        when:
+        def result = bookDao.getAll(PageRequest.of(0, 5))
+
+        then:
+        result.size() == 5
+    }
+
+    def "find all books sort by title"() {
+        when:
+        def result = bookDao.getAllBooksSortByTitle(PageRequest.of(0, 5, Sort.by(Sort.Order.desc("title"))))
+
+        then:
+        result.size() == 5
+        result[0].title == "What If?"
     }
 }

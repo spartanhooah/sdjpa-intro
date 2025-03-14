@@ -2,11 +2,11 @@ package net.frey.sdjpa_intro.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.entity.Book;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -100,6 +100,29 @@ public class BookDao {
             var book = em.find(Book.class, id);
             em.remove(book);
             em.getTransaction().commit();
+        }
+    }
+
+    public List<Book> getAll(Pageable pageable) {
+        try (var em = getEntityManager()) {
+            var query = em.createQuery("SELECT b FROM Book b", Book.class);
+            query.setFirstResult(Math.toIntExact(pageable.getOffset()));
+            query.setMaxResults(pageable.getPageSize());
+
+            return query.getResultList();
+        }
+    }
+
+    public List<Book> getAllBooksSortByTitle(Pageable pageable) {
+        try (var em = getEntityManager()) {
+            String hql = "SELECT b FROM Book b ORDER BY b.title "
+                    + pageable.getSort().getOrderFor("title").getDirection().name();
+
+            var query = em.createQuery(hql, Book.class);
+            query.setFirstResult(Math.toIntExact(pageable.getOffset()));
+            query.setMaxResults(pageable.getPageSize());
+
+            return query.getResultList();
         }
     }
 
