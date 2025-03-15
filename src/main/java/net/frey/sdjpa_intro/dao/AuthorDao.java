@@ -2,10 +2,13 @@ package net.frey.sdjpa_intro.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.entity.Author;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -123,6 +126,35 @@ public class AuthorDao {
         em.getTransaction().commit();
 
         em.close();
+    }
+
+    public List<Author> getAll(Pageable pageable) {
+        try (var em = getEntityManager()) {
+            var query = em.createQuery("SELECT a FROM Author a", Author.class);
+            query.setFirstResult(Math.toIntExact(pageable.getOffset()));
+            query.setMaxResults(pageable.getPageSize());
+
+            return query.getResultList();
+        }
+    }
+
+    public List<Author> getAllByLastName(String lastName, Pageable pageable) {
+        try (var em = getEntityManager()) {
+            var hql = "SELECT a FROM Author a WHERE a.lastName = :lastName";
+
+            Sort.Order firstNameSorting = pageable.getSort().getOrderFor("first_name");
+
+            if (firstNameSorting != null) {
+                hql += " ORDER BY firstName " + firstNameSorting.getDirection().name();
+            }
+
+            var query = em.createQuery(hql, Author.class);
+            query.setParameter("lastName", lastName);
+            query.setFirstResult(Math.toIntExact(pageable.getOffset()));
+            query.setMaxResults(pageable.getPageSize());
+
+            return query.getResultList();
+        }
     }
 
     private EntityManager getEntityManager() {

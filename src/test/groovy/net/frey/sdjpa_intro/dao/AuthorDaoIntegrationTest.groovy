@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
 
@@ -101,5 +103,23 @@ class AuthorDaoIntegrationTest extends Specification {
     def "get author by name with native query"() {
         expect:
         authorDao.getAuthorByNameNative("Craig", "Walls")
+    }
+
+    def "get all using paging"() {
+        when:
+        def result = authorDao.getAll(PageRequest.of(0, 10))
+
+        then:
+        result.size() == 10
+    }
+
+    def "get all authors by last name with paging and sorting"() {
+        when:
+        def result = authorDao.getAllByLastName('Smith',
+            PageRequest.of(0, 10, Sort.by(Sort.Order.desc("first_name"))))
+
+        then:
+        result.size() == 10
+        result[0].firstName == 'Yugal'
     }
 }
