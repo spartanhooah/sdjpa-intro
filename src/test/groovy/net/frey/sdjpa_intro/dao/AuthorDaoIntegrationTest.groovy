@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
 import org.springframework.test.context.ActiveProfiles
 import spock.lang.Specification
@@ -90,5 +92,31 @@ class AuthorDaoIntegrationTest extends Specification {
 
         then:
         thrown(JpaObjectRetrievalFailureException)
+    }
+
+    def "get all authors by last name"() {
+        when:
+        def result = authorDao.getAllByLastName("Smith", PageRequest.of(0, 10))
+
+        then:
+        result.size() == 10
+    }
+
+    def "get all authors by last name sort by first name ascending"() {
+        when:
+        def result = authorDao.getAllByLastName("Smith", PageRequest.of(0, 10, Sort.by(Sort.Order.asc("firstName"))))
+
+        then:
+        result.size() == 10
+        result[0].firstName == "Ahmed"
+    }
+
+    def "get all authors by last name sort by first name descending"() {
+        when:
+        def result = authorDao.getAllByLastName("Smith", PageRequest.of(0, 10, Sort.by(Sort.Order.desc("firstName"))))
+
+        then:
+        result.size() == 10
+        result[0].firstName == "Yugal"
     }
 }

@@ -2,9 +2,12 @@ package net.frey.sdjpa_intro.dao;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.entity.Book;
 import net.frey.sdjpa_intro.repository.BookRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -42,5 +45,31 @@ public class BookDao {
 
     public void deleteBookById(Long id) {
         repository.deleteById(id);
+    }
+
+    public List<Book> getAll() {
+        return repository.findAll();
+    }
+
+    public List<Book> getAll(Pageable pageable) {
+        return repository.findAll(pageable).getContent();
+    }
+
+    public List<Book> getAll(int pageSize, int offset) {
+        var pageable = PageRequest.ofSize(pageSize);
+
+        if (offset > 0) {
+            pageable = pageable.withPage(offset / pageSize);
+        } else {
+            pageable = pageable.withPage(0);
+        }
+
+        return getAll(pageable);
+    }
+
+    public List<Book> getAllSortByTitle(Pageable pageable) {
+        var bookPage = repository.findAll(pageable);
+
+        return bookPage.getContent();
     }
 }

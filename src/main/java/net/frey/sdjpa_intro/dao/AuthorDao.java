@@ -5,7 +5,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.frey.sdjpa_intro.entity.Author;
 import net.frey.sdjpa_intro.repository.AuthorRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -36,5 +39,9 @@ public class AuthorDao {
 
     public void deleteAuthorById(Long id) {
         repository.deleteById(id);
+    }
+
+    public List<Author> getAllByLastName(String lastName, Pageable pageable) {
+        return repository.findAuthorByLastName(lastName, pageable).getContent();
     }
 }
