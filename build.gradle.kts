@@ -52,7 +52,7 @@ tasks.withType<DependencyUpdatesTask> {
 }
 
 tasks.wrapper {
-	gradleVersion = "8.12.1"
+	gradleVersion = "8.13"
 	distributionType = Wrapper.DistributionType.ALL
 }
 
