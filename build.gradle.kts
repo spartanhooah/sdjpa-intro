@@ -2,11 +2,11 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
 	groovy
-	id("org.springframework.boot") version "3.4.2"
+	id("org.springframework.boot") version "4.0.0-RC2"
 	id("io.spring.dependency-management") version "1.1.7"
-	id("io.freefair.lombok") version "8.12.1"
-	id("com.diffplug.spotless") version "7.0.2"
-	id("com.github.ben-manes.versions") version "0.52.0"
+	id("io.freefair.lombok") version "9.1.0"
+	id("com.diffplug.spotless") version "8.0.0"
+	id("com.github.ben-manes.versions") version "0.53.0"
 }
 
 group = "net.frey"
@@ -14,7 +14,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(23)
 	}
 }
 
@@ -25,6 +25,9 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-flyway")
+
+    implementation("dev.akkinoc.spring.boot:logback-access-spring-boot-starter:4.7.0")
 
 	implementation("com.mysql:mysql-connector-j")
 	implementation("org.flywaydb:flyway-mysql")
@@ -53,7 +56,7 @@ tasks.withType<DependencyUpdatesTask> {
 }
 
 tasks.wrapper {
-	gradleVersion = "8.12.1"
+	gradleVersion = "9.2.0"
 	distributionType = Wrapper.DistributionType.ALL
 }
 
